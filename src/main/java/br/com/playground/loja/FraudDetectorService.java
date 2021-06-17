@@ -3,18 +3,21 @@ package br.com.playground.loja;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import java.util.Map;
 import java.util.Properties;
 
-public class FraudDetectorService {
+public class FraudDetectorService<T> {
 
     public static void main(String[] args) {
         var fraudService = new FraudDetectorService();
-        try (var service = new KafkaService(FraudDetectorService.class.getSimpleName(), "ECOMMERCE_NEW_ORDER", fraudService::parse)) {
+        try (var service = new KafkaService<Order>(FraudDetectorService.class.getSimpleName(),
+                "ECOMMERCE_NEW_ORDER", fraudService::parse,
+                Order.class, Map.of())) {
             service.run();
         }
     }
 
-    private void parse(ConsumerRecord<String, String> record) {
+    private void parse(ConsumerRecord<String, Order> record) {
         System.out.println("-----------------------------------------");
         System.out.println("processing new order");
         System.out.println(record.key());
